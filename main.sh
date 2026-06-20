@@ -41,13 +41,13 @@ input_param() {
 input_password() {
     local prompt="$1"
     local default="$2"
-    printf "%s: " "$prompt" >&2
+    printf "%s [%s]: " "$prompt" "$default" >&2
     stty -echo 2>/dev/null
-    val=""
-    read -r val
+    read -r val </dev/tty
+    local rc=$?
     stty echo 2>/dev/null
     printf "\n" >&2
-    [ -z "$val" ] && val="$default"
+    [ $rc -ne 0 ] || [ -z "$val" ] && val="$default"
     echo "$val"
 }
 
