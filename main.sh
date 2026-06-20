@@ -42,7 +42,13 @@ input_password() {
     local prompt="$1"
     local default="$2"
     printf "%s [%s]: " "$prompt" "$default" >&2
-    read -rs val </dev/tty
+    # Redirect stdin from /dev/tty so stty works on real terminal
+    exec 4<&0
+    exec 0 </dev/tty
+    stty -echo 2>/dev/null
+    read -r val
+    stty echo 2>/dev/null
+    exec 0<&4 4<&-
     printf "\n" >&2
     [ -z "$val" ] && val="$default"
     echo "$val"
