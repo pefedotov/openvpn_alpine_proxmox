@@ -92,7 +92,8 @@ EOF
 
     info "Initializing PKI..."
     ./easyrsa init-pki
-    echo "xtbz" | ./easyrsa --batch build-ca nopass
+    CA_NAME=$(input_param "CA name" "OpenVPN-CA")
+    echo "$CA_NAME" | ./easyrsa --batch build-ca nopass
 
     info "Generating server certificate..."
     ./easyrsa --batch gen-req server nopass
