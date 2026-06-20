@@ -168,6 +168,7 @@ EOF
 VPN_PUBLIC_IP=${VPN_PUBLIC_IP}
 VPN_PORT=${SERVER_PORT}
 VPN_PROTO=${VPN_PROTO}
+VPN_SUBNET=${VPN_SUBNET}
 EOF
 
     echo ""
@@ -291,7 +292,13 @@ do_cleanup() {
     rm -rf /root/clients
 
     info "Cleaning iptables rules..."
-    iptables -t nat -D POSTROUTING -s 10.8.0.0/24 -j MASQUERADE 2>/dev/null || true
+    # Read saved VPN subnet for cleanup
+    SAVED_SUBNET="10.8.0.0"
+    if [ -f /etc/openvpn/.vpn_params ]; then
+        . /etc/openvpn/.vpn_params
+        [ -n "$VPN_SUBNET" ] && SAVED_SUBNET="$VPN_SUBNET"
+    fi
+    iptables -t nat -D POSTROUTING -s "${SAVED_SUBNET}/24" -j MASQUERADE 2>/dev/null || true
     iptables -D FORWARD -i tun0 -j ACCEPT 2>/dev/null || true
     iptables -D FORWARD -j ACCEPT 2>/dev/null || true
     iptables -t nat -F 2>/dev/null || true

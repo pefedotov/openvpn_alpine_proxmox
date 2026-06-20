@@ -79,7 +79,7 @@ do_add() {
             info "Cancelled"
             return
         fi
-        do_del "$CLIENT_NAME"
+        do_del "$CLIENT_NAME" force
     fi
 
     if [ ! -d "$EASY_RSA_DIR" ] || [ ! -x "$EASY_RSA_DIR/easyrsa" ]; then
@@ -150,6 +150,11 @@ EOF
 # Delete user
 # -------------------------------------------
 do_del() {
+    local force=""
+    if [ "$2" = "force" ]; then
+        force="force"
+    fi
+
     if [ -n "$1" ]; then
         CLIENT_NAME="$1"
     else
@@ -169,14 +174,16 @@ do_del() {
         exit 1
     fi
 
-    warn "Deleting client '$CLIENT_NAME'..."
-    warn "Files will be removed from $CLIENT_DIR"
-    printf "Confirm? [y/N]: "
-    read_input_var answer
+    if [ "$force" != "force" ]; then
+        warn "Deleting client '$CLIENT_NAME'..."
+        warn "Files will be removed from $CLIENT_DIR"
+        printf "Confirm? [y/N]: "
+        read_input_var answer
 
-    if [ "$answer" != "y" ] && [ "$answer" != "Y" ]; then
-        info "Cancelled"
-        return
+        if [ "$answer" != "y" ] && [ "$answer" != "Y" ]; then
+            info "Cancelled"
+            return
+        fi
     fi
 
     cd "$EASY_RSA_DIR"
