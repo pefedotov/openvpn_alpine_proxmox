@@ -43,25 +43,7 @@ input_password() {
     local default="$2"
     printf "%s [%s]: " "$prompt" "$default" >&2
     stty -echo 2>/dev/null || true
-    val=""
-    while IFS= read -r -n 1 char </dev/tty 2>/dev/null; do
-        case "$char" in
-            ""|"
-")
-                break
-                ;;
-            $'\x7f'|$'\x08')
-                if [ -n "$val" ]; then
-                    val="${val%?}"
-                    printf '\b \b' >&2
-                fi
-                ;;
-            *)
-                val="${val}${char}"
-                printf '*' >&2
-                ;;
-        esac
-    done
+    read -r val </dev/tty
     stty echo 2>/dev/null || true
     printf "\n" >&2
     [ -z "$val" ] && val="$default"
